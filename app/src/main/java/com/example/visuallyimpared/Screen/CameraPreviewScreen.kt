@@ -1,5 +1,6 @@
 package com.example.visuallyimpared.Screen
 
+import androidx.camera.compose.CameraXViewfinder
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,18 +23,27 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.visuallyimpared.ViewModel.CameraPreviewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CameraPreviewScreen(modifier: Modifier = Modifier) {
+fun CameraPreviewScreen(
+    viewModel: CameraPreviewModel,
+    modifier: Modifier = Modifier
+) {
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     if (cameraPermissionState.status.isGranted) {
-        CameraPreviewScreenContent(modifier)
+        CameraPreviewContent(viewModel)
     } else {
         Column(
             modifier = modifier.fillMaxSize().wrapContentSize().widthIn(max = 480.dp),
@@ -62,34 +72,22 @@ fun CameraPreviewScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun CameraPreviewScreenContent(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+private fun CameraPreviewContent(
+    viewModel: CameraPreviewModel,
+    modifier: Modifier = Modifier,
+    lifecycleOwner: LifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+) {
+   val surfaceRequest by viewModel.surfaceRequest.collectAsStateWithLifecycle()
+   val context = LocalContext.current
+   LaunchedEffect(lifecycleOwner) {
+       viewModel.bindToCamera(context.applicationContext, lifecycleOwner)
+   }
 
-    AndroidView(
-        factory = { ctx ->
-            val previewView = PreviewView(ctx)
-            val executor = ContextCompat.getMainExecutor(ctx)
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
+   surfaceRequest?.let {request ->
+       CameraXViewfinder(
+           surfaceRequest = request,
+           modifier = modifier
+       )
+   }
 
-                val cameraSelector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
-
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview
-                )
-            }, executor)
-            previewView
-        },
-        modifier = modifier.fillMaxSize()
-    )
 }
