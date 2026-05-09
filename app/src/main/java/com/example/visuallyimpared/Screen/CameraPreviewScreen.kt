@@ -23,17 +23,36 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.takeOrElse
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.visuallyimpared.ViewModel.CameraPreviewModel
+import kotlinx.coroutines.delay
+import java.util.UUID
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -43,7 +62,7 @@ fun CameraPreviewScreen(
 ) {
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
     if (cameraPermissionState.status.isGranted) {
-        CameraPreviewContent(viewModel)
+        CameraPreviewContent(viewModel, modifier)
     } else {
         Column(
             modifier = modifier.fillMaxSize().wrapContentSize().widthIn(max = 480.dp),
@@ -83,11 +102,48 @@ private fun CameraPreviewContent(
        viewModel.bindToCamera(context.applicationContext, lifecycleOwner)
    }
 
+   var autofocusRequest by remember { mutableStateOf(UUID.randomUUID() to Offset.Unspecified)}
+
+    val autofocusRequestId = autofocusRequest.first
+    // show the autofocus indicator if the offset is specified
+    val showAutofocusIndicator = autofocusRequest.second.isSpecified
+    // Cache the initial coords for each autofocus request
+    val autofocusCoords = remember(autofocusRequestId) { autofocusRequest.second }
+
+    // Queue hiding the request for each unique autofocus tap
+    if (showAutofocusIndicator) {
+        LaunchedEffect(autofocusRequestId) {
+            delay(1000)
+            // Clear the offset to finish the request and hide the indicator
+            autofocusRequest = autofocusRequestId to Offset.Unspecified
+        }
+    }
+
    surfaceRequest?.let {request ->
+       val coordinateTransformer = remember { MutableCoordinateTransformer() }
        CameraXViewfinder(
            surfaceRequest = request,
-           modifier = modifier
+           coordinateTransformer = coordinateTransformer,
+           modifier = modifier.pointerInput(viewModel, coordinateTransformer) {
+               detectTapGestures { tapCoords ->
+                   with(coordinateTransformer) {
+                       viewModel.tapToFocus(tapCoords.transform())
+                   }
+                   autofocusRequest = UUID.randomUUID() to tapCoords
+               }
+           }
        )
+
+       AnimatedVisibility(
+           visible = showAutofocusIndicator,
+           enter = fadeIn(),
+           exit = fadeOut(),
+           modifier = Modifier
+               .offset { autofocusCoords.takeOrElse { Offset.Zero } .round() }
+               .offset((-24).dp, (-24).dp)
+       ) {
+           Spacer(Modifier.border(2.dp, Color.White, CircleShape).size(48.dp))
+       }
    }
 
 }

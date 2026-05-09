@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 
 @Composable
-fun Start() {
+fun StartScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -125,6 +125,6 @@ private fun AnimatedText(content: String) {
 @Composable
 fun StartViewPreview() {
     VisuallyImparedTheme {
-        Start()
+        StartScreen()
     }
 }
