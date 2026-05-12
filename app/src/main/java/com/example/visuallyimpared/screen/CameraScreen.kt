@@ -1,4 +1,4 @@
-package com.example.visuallyimpared.Screen
+package com.example.visuallyimpared.screen
 
 import androidx.compose.runtime.Composable
 

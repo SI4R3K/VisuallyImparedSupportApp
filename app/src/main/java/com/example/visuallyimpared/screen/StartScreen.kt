@@ -1,5 +1,6 @@
 package com.example.visuallyimpared.screen
 
+import android.net.Uri
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -23,6 +24,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,9 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
+import com.example.visuallyimpared.utils.rememberPhotoPicker
 
 @Composable
 fun StartScreen() {
+
+    val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
+
+    val pickPhoto = rememberPhotoPicker { uri ->
+        selectedImageUri.value = uri
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -71,7 +82,7 @@ fun StartScreen() {
                     Text(text = "Zrób zdjęcie")
                 }
 
-                Button(onClick = {}) {
+                Button(onClick = { pickPhoto() }) {
                     Icon(
                         imageVector = Icons.Filled.Upload,
                         contentDescription = "Wgraj zdjęcie",
