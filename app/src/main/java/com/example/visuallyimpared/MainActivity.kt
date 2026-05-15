@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.remember
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.visuallyimpared.screen.CameraPreviewScreen
+import com.example.visuallyimpared.screen.ImageRecognitionScreen
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.screen.StartScreen
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
@@ -19,8 +20,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             VisuallyImparedTheme {
 //                StartScreen()
-                val viewModel = remember { CameraPreviewModel() }
-                CameraPreviewScreen(viewModel)
+//                val viewModel = remember { CameraPreviewModel() }
+//                CameraPreviewScreen(viewModel)
+                ImageRecognitionScreen()
             }
         }
     }
