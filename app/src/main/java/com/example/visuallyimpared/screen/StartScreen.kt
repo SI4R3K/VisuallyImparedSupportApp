@@ -36,11 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
+import com.example.visuallyimpared.viewModel.CameraPreviewModel
 
 @Composable
 fun StartScreen() {
 
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
+    val showCamera = remember { mutableStateOf(false) }
 
     val pickPhoto = rememberPhotoPicker { uri ->
         selectedImageUri.value = uri
@@ -75,7 +77,10 @@ fun StartScreen() {
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(onClick = { /*TODO - navigate to camera*/ }) {
+                    Button(onClick = {
+                        /*TODO move to CameraPreviewScreen */
+                    }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.CameraAlt,
                             contentDescription = "Zrób zdjęcie",
@@ -99,7 +104,13 @@ fun StartScreen() {
 
             // Display UploadScreen as an overlay when an image is selected
             if (selectedImageUri.value != null) {
-                UploadScreen(capturedImageUri = selectedImageUri)
+                UploadScreen(
+                    capturedImageUri = selectedImageUri,
+                    onRedo = {
+                        selectedImageUri.value = null
+                        pickPhoto()
+                    }
+                )
             }
         }
     }

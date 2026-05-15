@@ -33,7 +33,10 @@ import coil.compose.AsyncImage
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 
 @Composable
-fun UploadScreen(capturedImageUri: MutableState<Uri?>) {
+fun UploadScreen(
+    capturedImageUri: MutableState<Uri?>,
+    onRedo: () -> Unit
+) {
 
     val uri = capturedImageUri.value
 
@@ -72,13 +75,13 @@ fun UploadScreen(capturedImageUri: MutableState<Uri?>) {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { capturedImageUri.value = null },
+                    onClick = onRedo,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp)
                 ) {
-                    Text("Retake", color = Color.White)
+                    Text("Redo", color = Color.White)
                 }
 
                 Button(
@@ -102,6 +105,6 @@ fun UploadScreen(capturedImageUri: MutableState<Uri?>) {
 @Composable
 fun UploadScreenPreview() {
     VisuallyImparedTheme {
-        UploadScreen(remember { mutableStateOf<Uri?>(null) })
+        UploadScreen(remember { mutableStateOf<Uri?>(null) }, onRedo = {})
     }
 }
