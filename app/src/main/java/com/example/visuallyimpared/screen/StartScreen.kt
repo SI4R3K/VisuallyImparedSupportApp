@@ -7,6 +7,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,50 +50,57 @@ fun StartScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 48.dp, bottom = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AnimatedText("Witaj")
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = "Wybierz jak chcesz wgrać zdjęcie...",
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(top = 48.dp, bottom = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(onClick = {}) {
-                    Icon(
-                        imageVector = Icons.Filled.CameraAlt,
-                        contentDescription = "Zrób zdjęcie",
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(text = "Zrób zdjęcie")
+                AnimatedText("Witaj")
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = "Wybierz jak chcesz wgrać zdjęcie...",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(onClick = { /*TODO - navigate to camera*/ }) {
+                        Icon(
+                            imageVector = Icons.Filled.CameraAlt,
+                            contentDescription = "Zrób zdjęcie",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(text = "Zrób zdjęcie")
+                    }
+
+                    Button(onClick = { pickPhoto() }) {
+                        Icon(
+                            imageVector = Icons.Filled.Upload,
+                            contentDescription = "Wgraj zdjęcie",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(text = "Wgraj zdjęcie")
+                    }
                 }
 
-                Button(onClick = { pickPhoto() }) {
-                    Icon(
-                        imageVector = Icons.Filled.Upload,
-                        contentDescription = "Wgraj zdjęcie",
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Text(text = "Wgraj zdjęcie")
-                }
+                Spacer(modifier = Modifier.weight(1f))
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            // Display UploadScreen as an overlay when an image is selected
+            if (selectedImageUri.value != null) {
+                UploadScreen(capturedImageUri = selectedImageUri)
+            }
         }
     }
 }

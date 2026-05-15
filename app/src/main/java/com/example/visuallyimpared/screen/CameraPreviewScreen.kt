@@ -216,65 +216,7 @@ private fun CameraPreviewContent(
 
         // Display the captured image in the center with confirmation options
         capturedImageUri.value?.let { uri ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.9f)) // Dim the background
-                    .pointerInput(Unit) {
-                        detectTapGestures {
-                            // Prevent accidental dismissal on tap
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = "Captured Image",
-                        modifier = Modifier
-                            .weight(1f, fill = false)
-                            .clip(RoundedCornerShape(16.dp))
-                            .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Fit
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            onClick = { capturedImageUri.value = null },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            Text("Retake", color = Color.White)
-                        }
-
-                        Button(
-                            onClick = {
-                                /* TODO: Navigate further */
-                                capturedImageUri.value = null // Dismiss for now
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            Text("Confirm", color = Color.Black)
-                        }
-                    }
-                }
-            }
+            UploadScreen(capturedImageUri)
         }
     }
 }
