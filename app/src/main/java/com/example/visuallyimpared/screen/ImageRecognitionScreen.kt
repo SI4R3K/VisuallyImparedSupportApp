@@ -3,6 +3,7 @@ package com.example.visuallyimpared.screen
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,7 +53,7 @@ fun ImageRecognitionScreen(imageUri: Uri? = null) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(top = 30.dp, end = 10.dp, start = 10.dp, bottom = 10.dp)
     ) {
         // Image Container - fills remaining space
         Box(
@@ -83,20 +84,21 @@ fun ImageRecognitionScreen(imageUri: Uri? = null) {
         Spacer(modifier = Modifier.height(10.dp))
 
         // Recognized text container
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(16.dp),
-            contentAlignment = Alignment.TopStart
+                .padding(16.dp)
         ) {
-            Text(
-                text = recognizedText.ifEmpty { "Recognized text will appear here..." },
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            item {
+                Text(
+                    text = recognizedText.ifEmpty { "Recognized text will appear here..." },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         // Buttons at the bottom

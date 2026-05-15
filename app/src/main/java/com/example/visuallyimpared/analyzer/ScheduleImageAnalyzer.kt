@@ -11,7 +11,7 @@ class ScheduleImageAnalyzer(
     private val context: Context,
     private val onRecognized: (String) -> Unit
 ) {
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
 
     /**
      * Call this method from your Screen (e.g., when clicking the Recognize button)

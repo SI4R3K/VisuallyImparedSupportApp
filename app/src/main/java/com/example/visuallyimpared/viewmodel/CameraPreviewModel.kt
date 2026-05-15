@@ -1,4 +1,4 @@
-package com.example.visuallyimpared.viewModel
+package com.example.visuallyimpared.viewmodel
 
 import android.content.Context
 import android.net.Uri

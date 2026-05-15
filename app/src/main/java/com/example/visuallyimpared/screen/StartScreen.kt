@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
-import com.example.visuallyimpared.viewModel.CameraPreviewModel
 
 @Composable
 fun StartScreen() {
