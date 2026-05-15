@@ -10,6 +10,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
+import androidx.camera.viewfinder.compose.IdentityCoordinateTransformer.transform
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -90,7 +91,10 @@ private fun PermissionScreen(
 
 ) {
     Column(
-        modifier = modifier.fillMaxSize().wrapContentSize().widthIn(max = 480.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize()
+            .widthIn(max = 480.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
@@ -125,18 +129,6 @@ private fun CameraPreviewContent(
 
     var camera by remember { mutableStateOf<Camera?>(null) }
 
-    LaunchedEffect(Unit) {
-        val cameraProvider = ProcessCameraProvider.awaitInstance(context)
-        cameraProvider.unbindAll()
-        camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageCapture)
-    }
-
-    LaunchedEffect(preview) {
-        preview.setSurfaceProvider { request ->
-            viewModel.updateSurfaceRequest(request)
-        }
-    }
-
     val surfaceRequest by viewModel.surfaceRequest.collectAsStateWithLifecycle()
     val coordinateTransformer = remember { MutableCoordinateTransformer() }
 
@@ -145,6 +137,27 @@ private fun CameraPreviewContent(
     val showAutofocusIndicator = autofocusRequest.second.isSpecified
     val autofocusCoords = remember(autofocusRequestId) { autofocusRequest.second }
 
+    // Camera binding
+    LaunchedEffect(Unit) {
+        val cameraProvider = ProcessCameraProvider.awaitInstance(context)
+        cameraProvider.unbindAll()
+
+        val cam = cameraProvider.bindToLifecycle(
+            lifecycleOwner,
+            cameraSelector,
+            preview,
+            imageCapture
+        )
+        camera = cam
+        viewModel.setCamera(cam)
+    }
+
+    LaunchedEffect(preview) {
+        preview.setSurfaceProvider { request ->
+            viewModel.updateSurfaceRequest(request)
+        }
+    }
+
     if (showAutofocusIndicator) {
         LaunchedEffect(autofocusRequestId) {
             delay(1000)
@@ -152,8 +165,15 @@ private fun CameraPreviewContent(
         }
     }
 
+    // Displaying the camera view from device
     Box(modifier = modifier.fillMaxSize()) {
         surfaceRequest?.let { request ->
+            val factory = remember(request) {
+                SurfaceOrientedMeteringPointFactory(
+                    request.resolution.width.toFloat(),
+                    request.resolution.height.toFloat()
+                )
+            }
             CameraXViewfinder(
                 surfaceRequest = request,
                 coordinateTransformer = coordinateTransformer,
@@ -161,24 +181,17 @@ private fun CameraPreviewContent(
                     .fillMaxSize()
                     .pointerInput(Unit) {
                         detectTapGestures { tapCoords ->
-                            val transformedOffset = with(coordinateTransformer) {
-                                tapCoords.transform()
-                            }
-
-                            val factory = SurfaceOrientedMeteringPointFactory(
-                                request.resolution.width.toFloat(),
-                                request.resolution.height.toFloat()
+                            viewModel.focusAt(
+                                tapCoords,
+                                factory = factory
                             )
-                            val point = factory.createPoint(transformedOffset.x, transformedOffset.y)
-                            val action = FocusMeteringAction.Builder(point).build()
-                            camera?.cameraControl?.startFocusAndMetering(action)
-
                             autofocusRequest = UUID.randomUUID() to tapCoords
                         }
                     }
             )
         }
 
+        // White circle to indicate focusing action
         AnimatedVisibility(
             visible = showAutofocusIndicator,
             enter = fadeIn(),
@@ -193,6 +206,7 @@ private fun CameraPreviewContent(
             )
         }
 
+        // Take picture button
         Button(
             onClick = {
                 takePicture(imageCapture, context, executor, {uri ->
