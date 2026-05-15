@@ -2,13 +2,7 @@ package com.example.visuallyimpared.screen
 
 import android.net.Uri
 import androidx.camera.compose.CameraXViewfinder
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -53,14 +47,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
-import com.example.visuallyimpared.utils.CameraFileUtils.takePicture
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.delay
 import java.util.UUID
-import java.util.concurrent.Executors
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -84,7 +76,6 @@ fun CameraPreviewScreen(
 private fun PermissionScreen(
     cameraPermissionState: com.google.accompanist.permissions.PermissionState,
     modifier: Modifier
-
 ) {
     Column(
         modifier = modifier
@@ -116,14 +107,7 @@ private fun CameraPreviewContent(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val context = LocalContext.current
-    val executor = remember { Executors.newSingleThreadExecutor() }
     val capturedImageUri = remember { mutableStateOf<Uri?>(null) }
-
-    val preview = remember { Preview.Builder().build() }
-    val imageCapture = remember { ImageCapture.Builder().build() }
-    val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
-    var camera by remember { mutableStateOf<Camera?>(null) }
 
     val surfaceRequest by viewModel.surfaceRequest.collectAsStateWithLifecycle()
     val coordinateTransformer = remember { MutableCoordinateTransformer() }
@@ -134,24 +118,8 @@ private fun CameraPreviewContent(
     val autofocusCoords = remember(autofocusRequestId) { autofocusRequest.second }
 
     // Camera binding
-    LaunchedEffect(Unit) {
-        val cameraProvider = ProcessCameraProvider.awaitInstance(context)
-        cameraProvider.unbindAll()
-
-        val cam = cameraProvider.bindToLifecycle(
-            lifecycleOwner,
-            cameraSelector,
-            preview,
-            imageCapture
-        )
-        camera = cam
-        viewModel.setCamera(cam)
-    }
-
-    LaunchedEffect(preview) {
-        preview.setSurfaceProvider { request ->
-            viewModel.updateSurfaceRequest(request)
-        }
+    LaunchedEffect(lifecycleOwner) {
+        viewModel.bindCamera(context, lifecycleOwner)
     }
 
     if (showAutofocusIndicator) {
@@ -205,11 +173,15 @@ private fun CameraPreviewContent(
         // Take picture button
         Button(
             onClick = {
-                takePicture(imageCapture, context, executor, {uri ->
-                    capturedImageUri.value = uri
-                }, { _ ->
-                    // Handle error
-                })
+                viewModel.capturePhoto(
+                    context = context,
+                    onImageCaptured = { uri ->
+                        capturedImageUri.value = uri
+                    },
+                    onError = { _ ->
+                        // Handle error
+                    }
+                )
             },
             shape = CircleShape,
             contentPadding = PaddingValues(0.dp),
