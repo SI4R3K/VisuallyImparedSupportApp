@@ -16,8 +16,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +36,7 @@ import com.example.visuallyimpared.utils.rememberPhotoPicker
 fun ImageRecognitionScreen(imageUri: Uri? = null) {
     // If no URI is passed from navigation, we can still pick one locally
     val context = LocalContext.current
-    var recognizedText: String = remember { mutableStateOf("").toString() }
+    var recognizedText by remember { mutableStateOf("") }
     val selectedImageUri = remember { mutableStateOf<Uri?>(imageUri) }
 
     val pickPhoto = rememberPhotoPicker { uri ->
@@ -87,11 +89,11 @@ fun ImageRecognitionScreen(imageUri: Uri? = null) {
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(5.dp),
-            contentAlignment = Alignment.Center
+                .padding(16.dp),
+            contentAlignment = Alignment.TopStart
         ) {
             Text(
-                text = "Recognized text will appear here... \n$recognizedText",
+                text = recognizedText.ifEmpty { "Recognized text will appear here..." },
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -106,7 +108,10 @@ fun ImageRecognitionScreen(imageUri: Uri? = null) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
-                onClick = { pickPhoto() },
+                onClick = {
+                    pickPhoto()
+                    recognizedText = ""
+                          },
                 modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Upload image")
