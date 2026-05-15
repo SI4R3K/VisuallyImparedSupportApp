@@ -8,7 +8,6 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
-import androidx.camera.core.SurfaceRequest
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.viewfinder.compose.MutableCoordinateTransformer
@@ -18,14 +17,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -58,10 +54,7 @@ import androidx.compose.ui.unit.round
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
-import com.example.visuallyimpared.ViewModel.CameraPreviewModel
+import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.CameraFileUtils.takePicture
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -78,27 +71,40 @@ fun CameraPreviewScreen(
     viewModel: CameraPreviewModel,
     modifier: Modifier = Modifier
 ) {
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    val cameraPermissionState = rememberPermissionState(
+        android.Manifest.permission.CAMERA
+    )
+
     if (cameraPermissionState.status.isGranted) {
         CameraPreviewContent(viewModel, modifier)
     } else {
-        Column(
-            modifier = modifier.fillMaxSize().wrapContentSize().widthIn(max = 480.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
-                "Whoops! Looks like we need your camera to work our magic!" +
-                        "Don't worry, we just wanna see your pretty face (and maybe some cats).  " +
-                        "Grant us permission and let's get this party started!"
-            } else {
-                "Hi there! We need your camera to work our magic! ✨\n" +
-                        "Grant us permission and let's get this party started! \uD83C\uDF89"
-            }
-            Text(textToShow, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(16.dp))
-            Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                Text("Unleash the Camera!")
-            }
+        PermissionScreen(cameraPermissionState, modifier)
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun PermissionScreen(
+    cameraPermissionState: com.google.accompanist.permissions.PermissionState,
+    modifier: Modifier
+
+) {
+    Column(
+        modifier = modifier.fillMaxSize().wrapContentSize().widthIn(max = 480.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
+            "Whoops! Looks like we need your camera to work our magic!" +
+                    "Don't worry, we just wanna see your pretty face (and maybe some cats).  " +
+                    "Grant us permission and let's get this party started!"
+        } else {
+            "Hi there! We need your camera to work our magic! ✨\n" +
+                    "Grant us permission and let's get this party started! \uD83C\uDF89"
+        }
+        Text(textToShow, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(16.dp))
+        Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+            Text("Unleash the Camera!")
         }
     }
 }
@@ -218,13 +224,5 @@ private fun CameraPreviewContent(
         capturedImageUri.value?.let { uri ->
             UploadScreen(capturedImageUri)
         }
-    }
-}
-
-@ComposePreview(showBackground = true)
-@Composable
-fun CameraPreviewScreenPreview() {
-    VisuallyImparedTheme {
-        CameraPreviewScreen(viewModel = CameraPreviewModel())
     }
 }

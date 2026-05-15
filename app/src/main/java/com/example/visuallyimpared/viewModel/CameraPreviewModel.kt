@@ -1,4 +1,4 @@
-package com.example.visuallyimpared.ViewModel
+package com.example.visuallyimpared.viewModel
 
 import androidx.camera.core.SurfaceRequest
 import androidx.lifecycle.ViewModel
