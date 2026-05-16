@@ -65,11 +65,13 @@ fun ImageRecognitionScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        Spacer(modifier = Modifier.height(30.dp))
+
         // Image Container
         Surface(
             modifier = Modifier
                 .weight(1.2f)
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 16.dp, end = 16.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = Color.White.copy(alpha = 0.95f), // High contrast off-white
@@ -102,7 +104,7 @@ fun ImageRecognitionScreen(
         Surface(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 8.dp, end = 8.dp)
+                .padding(start = 16.dp, end = 16.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = Color.White.copy(alpha = 0.95f),
@@ -127,7 +129,7 @@ fun ImageRecognitionScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp),
+                .padding(vertical = 24.dp, horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
