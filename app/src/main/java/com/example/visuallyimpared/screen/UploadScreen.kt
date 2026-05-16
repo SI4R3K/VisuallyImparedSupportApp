@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -27,9 +28,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import coil.compose.AsyncImage
+import com.example.visuallyimpared.R
+import com.example.visuallyimpared.ui.components.AppButton
+import com.example.visuallyimpared.ui.components.AppSecondaryButton
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 
 @Composable
@@ -44,7 +49,7 @@ fun UploadScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.9f)) // Dim the background
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.90f)) // Use theme background with dimming
             .pointerInput(Unit) {
                 detectTapGestures {
                     // Prevent accidental dismissal on tap
@@ -54,8 +59,7 @@ fun UploadScreen(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
+                .padding(dimensionResource(id = R.dimen.padding_medium)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -75,31 +79,30 @@ fun UploadScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(
+                AppButton(
                     onClick = onRedo,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(dimensionResource(R.dimen.padding_medium)),
                 ) {
-                    Text("Redo", color = Color.White)
+                    Text("Redo")
                 }
 
-                Button(
+                AppButton(
                     onClick = {
                         onConfirm(uri)
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(dimensionResource(R.dimen.padding_medium)),
                 ) {
-                    Text("Confirm", color = Color.Black)
+                    Text("Confirm")
                 }
             }
         }
     }
 }
+
 
 @ComposePreview(showBackground = true)
 @Composable

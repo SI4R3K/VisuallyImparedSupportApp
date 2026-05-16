@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.round
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -95,7 +96,7 @@ private fun PermissionScreen(
         }
         Text(textToShow, textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
-        Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+        AppButton(onClick = { cameraPermissionState.launchPermissionRequest() }) {
             Text("Unleash the Camera!")
         }
     }

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
@@ -78,7 +79,7 @@ fun StartScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(onClick = {
+                    AppButton(onClick = {
                        onTakePhoto()
                     }
                     ) {
@@ -90,7 +91,7 @@ fun StartScreen(
                         Text(text = "Zrób zdjęcie")
                     }
 
-                    Button(onClick = { pickPhoto() }) {
+                    AppButton(onClick = { pickPhoto() }) {
                         Icon(
                             imageVector = Icons.Filled.Upload,
                             contentDescription = "Wgraj zdjęcie",
