@@ -39,11 +39,12 @@ import com.example.visuallyimpared.utils.rememberPhotoPicker
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
 
 @Composable
-fun StartScreen() {
+fun StartScreen(
+    onTakePhoto: () -> Unit = {},
+    onConfirmUpload: (Uri) -> Unit = {}
+) {
 
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
-    val showCamera = remember { mutableStateOf(false) }
-
     val pickPhoto = rememberPhotoPicker { uri ->
         selectedImageUri.value = uri
     }
@@ -78,7 +79,7 @@ fun StartScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(onClick = {
-                        /*TODO move to CameraPreviewScreen */
+                       onTakePhoto()
                     }
                     ) {
                         Icon(
@@ -109,6 +110,9 @@ fun StartScreen() {
                     onRedo = {
                         selectedImageUri.value = null
                         pickPhoto()
+                    },
+                    onConfirm = { uri ->
+                        onConfirmUpload(uri)
                     }
                 )
             }

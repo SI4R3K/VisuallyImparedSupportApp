@@ -58,6 +58,7 @@ import java.util.UUID
 @Composable
 fun CameraPreviewScreen(
     viewModel: CameraPreviewModel,
+    onImageCaptured: (Uri) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val cameraPermissionState = rememberPermissionState(
@@ -65,7 +66,7 @@ fun CameraPreviewScreen(
     )
 
     if (cameraPermissionState.status.isGranted) {
-        CameraPreviewContent(viewModel, modifier)
+        CameraPreviewContent(viewModel, onImageCaptured, modifier)
     } else {
         PermissionScreen(cameraPermissionState, modifier)
     }
@@ -103,6 +104,7 @@ private fun PermissionScreen(
 @Composable
 private fun CameraPreviewContent(
     viewModel: CameraPreviewModel,
+    onImageCaptured: (Uri) -> Unit,
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
@@ -208,6 +210,9 @@ private fun CameraPreviewContent(
                 capturedImageUri = capturedImageUri,
                 onRedo = {
                     capturedImageUri.value = null
+                },
+                onConfirm = { confirmedUri ->
+                    onImageCaptured(confirmedUri)
                 }
             )
         }

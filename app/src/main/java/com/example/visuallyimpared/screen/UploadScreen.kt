@@ -35,10 +35,11 @@ import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 @Composable
 fun UploadScreen(
     capturedImageUri: MutableState<Uri?>,
-    onRedo: () -> Unit
+    onRedo: () -> Unit,
+    onConfirm: (Uri) -> Unit
 ) {
 
-    val uri = capturedImageUri.value
+    val uri = capturedImageUri.value ?: return
 
     Box(
         modifier = Modifier
@@ -86,8 +87,7 @@ fun UploadScreen(
 
                 Button(
                     onClick = {
-                        /* TODO: Navigate further */
-                        capturedImageUri.value = null // Dismiss for now
+                        onConfirm(uri)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
                     modifier = Modifier
@@ -105,6 +105,6 @@ fun UploadScreen(
 @Composable
 fun UploadScreenPreview() {
     VisuallyImparedTheme {
-        UploadScreen(remember { mutableStateOf<Uri?>(null) }, onRedo = {})
+        UploadScreen(remember { mutableStateOf<Uri?>(null) }, onRedo = {}, onConfirm = {})
     }
 }
