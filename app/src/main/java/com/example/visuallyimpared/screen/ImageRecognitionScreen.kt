@@ -1,7 +1,6 @@
 package com.example.visuallyimpared.screen
 
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,34 +28,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.visuallyimpared.VisuallyImparedApp
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
 import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.utils.rememberPhotoPicker
+import com.example.visuallyimpared.viewmodel.OcrViewModel
+import com.example.visuallyimpared.viewmodel.OcrViewModelFactory
+import com.google.mlkit.vision.text.Text
 
 @Composable
 fun ImageRecognitionScreen(
+    modifier: Modifier = Modifier,
     imageUri: Uri? = null,
     onRestart: () -> Unit = {},
-    modifier: Modifier = Modifier
+    viewModel: OcrViewModel = viewModel(
+        factory = OcrViewModelFactory(
+            (LocalContext.current.applicationContext as VisuallyImparedApp).repository
+        )
+    ),
 ) {
     // If no URI is passed from navigation, we can still pick one locally
     val context = LocalContext.current
     var recognizedText by remember { mutableStateOf("") }
+    var recognizedBlocks = remember { mutableListOf<Text.TextBlock?>() }
     val selectedImageUri = remember { mutableStateOf<Uri?>(imageUri) }
     val isInspectionMode = LocalInspectionMode.current
-
-    val pickPhoto = rememberPhotoPicker { uri ->
-        selectedImageUri.value = uri
-    }
 
     val analyzer = remember(context) {
         if (isInspectionMode) null
         else ScheduleImageAnalyzer(context) { text ->
             recognizedText = text
+            viewModel.saveRecognizedText(text)
         }
     }
 
@@ -133,7 +139,7 @@ fun ImageRecognitionScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AppButton(
+                AppButton(
                 onClick = {
                     onRestart()
                     recognizedText = ""

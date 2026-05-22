@@ -1,7 +1,6 @@
 package com.example.visuallyimpared
 
 import android.net.Uri
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,7 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.visuallyimpared.screen.CameraPreviewScreen
 import com.example.visuallyimpared.screen.ImageRecognitionScreen
 import com.example.visuallyimpared.screen.StartScreen
-import com.example.visuallyimpared.viewModel.CameraPreviewModel
+import com.example.visuallyimpared.viewmodel.CameraPreviewModel
 
 enum class VisuallyImparedScreen {
     Start,
@@ -24,7 +23,7 @@ enum class VisuallyImparedScreen {
 }
 
 @Composable
-fun VisuallyImparedApp(
+fun VisuallyImparedAppScreen(
     navController: NavHostController = rememberNavController()
 ) {
     val cameraViewModel = remember { CameraPreviewModel() }

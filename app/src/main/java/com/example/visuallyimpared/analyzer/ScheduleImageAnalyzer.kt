@@ -3,6 +3,7 @@ package com.example.visuallyimpared.analyzer
 import android.content.Context
 import android.net.Uri
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.IOException
@@ -12,7 +13,7 @@ class ScheduleImageAnalyzer(
     private val onRecognized: (String) -> Unit
 ) {
     private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
-
+    private val processor = TextPostProcessor()
     /**
      * Call this method from your Screen (e.g., when clicking the Recognize button)
      */
@@ -25,6 +26,7 @@ class ScheduleImageAnalyzer(
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
                     // 3. Pass the result back via the callback
+                    processor.process(visionText)
                     onRecognized(visionText.text)
                 }
                 .addOnFailureListener { e ->

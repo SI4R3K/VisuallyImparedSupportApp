@@ -9,6 +9,7 @@ class OcrViewModelFactory(private val repository: OcrRepository) : ViewModelProv
         if (modelClass.isAssignableFrom(OcrViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return OcrViewModel(repository) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
