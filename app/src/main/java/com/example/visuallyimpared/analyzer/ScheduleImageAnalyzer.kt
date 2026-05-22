@@ -12,7 +12,7 @@ class ScheduleImageAnalyzer(
     private val onRecognized: (String) -> Unit
 ) {
     private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
-
+    private val processor = TextPostProcessor()
     /**
      * Call this method from your Screen (e.g., when clicking the Recognize button)
      */
@@ -25,6 +25,7 @@ class ScheduleImageAnalyzer(
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
                     // 3. Pass the result back via the callback
+                    processor.process(visionText)
                     onRecognized(visionText.text)
                 }
                 .addOnFailureListener { e ->
