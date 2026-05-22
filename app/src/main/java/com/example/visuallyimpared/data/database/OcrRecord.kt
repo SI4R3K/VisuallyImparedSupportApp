@@ -1,0 +1,14 @@
+package com.example.visuallyimpared.data.database
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class OcrRecord(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+
+    val text: String,
+
+    val timeStamp: Long
+)

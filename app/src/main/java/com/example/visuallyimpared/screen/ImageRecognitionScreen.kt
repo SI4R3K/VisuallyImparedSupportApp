@@ -30,11 +30,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.visuallyimpared.VisuallyImparedApp
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
 import com.example.visuallyimpared.utils.rememberPhotoPicker
+import com.example.visuallyimpared.viewmodel.OcrViewModel
+import com.example.visuallyimpared.viewmodel.OcrViewModelFactory
 
 @Composable
-fun ImageRecognitionScreen(imageUri: Uri? = null) {
+fun ImageRecognitionScreen(
+    imageUri: Uri? = null,
+    viewModel: OcrViewModel = viewModel(
+        factory = OcrViewModelFactory(
+            (LocalContext.current.applicationContext as VisuallyImparedApp).repository
+        )
+    )
+) {
     // If no URI is passed from navigation, we can still pick one locally
     val context = LocalContext.current
     var recognizedText by remember { mutableStateOf("") }
@@ -47,6 +58,7 @@ fun ImageRecognitionScreen(imageUri: Uri? = null) {
     val analyzer = remember {
         ScheduleImageAnalyzer(context) { text ->
             recognizedText = text
+            viewModel.saveRecognizedText(text)
         }
     }
 
