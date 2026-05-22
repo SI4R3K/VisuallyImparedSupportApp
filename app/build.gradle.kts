@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.accompanist.permissions)
+    implementation(libs.androidx.navigation.compose)
     implementation("androidx.core:core-splashscreen:1.0.0")
     implementation("com.google.mlkit:text-recognition:16.0.1")
     testImplementation(libs.junit)

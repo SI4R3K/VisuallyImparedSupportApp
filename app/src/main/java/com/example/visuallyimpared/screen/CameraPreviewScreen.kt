@@ -46,7 +46,8 @@ import androidx.compose.ui.unit.round
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.visuallyimpared.viewmodel.CameraPreviewModel
+import com.example.visuallyimpared.ui.components.AppButton
+import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -58,6 +59,7 @@ import java.util.UUID
 @Composable
 fun CameraPreviewScreen(
     viewModel: CameraPreviewModel,
+    onImageCaptured: (Uri) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val cameraPermissionState = rememberPermissionState(
@@ -65,7 +67,7 @@ fun CameraPreviewScreen(
     )
 
     if (cameraPermissionState.status.isGranted) {
-        CameraPreviewContent(viewModel, modifier)
+        CameraPreviewContent(viewModel, onImageCaptured, modifier)
     } else {
         PermissionScreen(cameraPermissionState, modifier)
     }
@@ -94,7 +96,7 @@ private fun PermissionScreen(
         }
         Text(textToShow, textAlign = TextAlign.Center)
         Spacer(Modifier.height(16.dp))
-        Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+        AppButton(onClick = { cameraPermissionState.launchPermissionRequest() }) {
             Text("Unleash the Camera!")
         }
     }
@@ -103,6 +105,7 @@ private fun PermissionScreen(
 @Composable
 private fun CameraPreviewContent(
     viewModel: CameraPreviewModel,
+    onImageCaptured: (Uri) -> Unit,
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
@@ -208,6 +211,9 @@ private fun CameraPreviewContent(
                 capturedImageUri = capturedImageUri,
                 onRedo = {
                     capturedImageUri.value = null
+                },
+                onConfirm = { confirmedUri ->
+                    onImageCaptured(confirmedUri)
                 }
             )
         }

@@ -34,15 +34,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
 
 @Composable
-fun StartScreen() {
+fun StartScreen(
+    onTakePhoto: () -> Unit = {},
+    onConfirmUpload: (Uri) -> Unit = {}
+) {
 
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
-    val showCamera = remember { mutableStateOf(false) }
-
     val pickPhoto = rememberPhotoPicker { uri ->
         selectedImageUri.value = uri
     }
@@ -76,8 +78,8 @@ fun StartScreen() {
                     horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(onClick = {
-                        /*TODO move to CameraPreviewScreen */
+                    AppButton(onClick = {
+                       onTakePhoto()
                     }
                     ) {
                         Icon(
@@ -88,7 +90,7 @@ fun StartScreen() {
                         Text(text = "Zrób zdjęcie")
                     }
 
-                    Button(onClick = { pickPhoto() }) {
+                    AppButton(onClick = { pickPhoto() }) {
                         Icon(
                             imageVector = Icons.Filled.Upload,
                             contentDescription = "Wgraj zdjęcie",
@@ -108,6 +110,9 @@ fun StartScreen() {
                     onRedo = {
                         selectedImageUri.value = null
                         pickPhoto()
+                    },
+                    onConfirm = { uri ->
+                        onConfirmUpload(uri)
                     }
                 )
             }

@@ -15,10 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             VisuallyImparedTheme {
-//                StartScreen()
-//                val viewModel = remember { CameraPreviewModel() }
-//                CameraPreviewScreen(viewModel)
-                ImageRecognitionScreen()
+                VisuallyImparedApp()
             }
         }
     }

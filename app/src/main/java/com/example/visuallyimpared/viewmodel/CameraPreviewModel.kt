@@ -90,4 +90,5 @@ class CameraPreviewModel : ViewModel() {
         super.onCleared()
         executor.shutdown()
     }
+
 }
