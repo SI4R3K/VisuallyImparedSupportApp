@@ -4,19 +4,40 @@ import android.util.Log
 import com.google.mlkit.vision.text.Text
 
 class TextPostProcessor {
-    private var blocks: List<Text.TextBlock> = emptyList()
 
-    fun process(processedText: Text): Unit {
-        blocks = processedText.textBlocks
+    fun process(processedText: Text) {
 
-        val sb = StringBuilder()
-        for (block in blocks) {
-            sb.append(block.text).append("\n")
+        val items = mutableListOf<OcrItem>()
+
+        for (block in processedText.textBlocks) {
+            for (line in block.lines) {
+                for (element in line.elements) {
+                    val box = element.boundingBox ?: continue
+
+                    items.add(
+                        OcrItem(
+                            text = element.text,
+                            x = box.centerX(),
+                            y = box.centerY(),
+                            width = box.width(),
+                            height = box.height()
+                        )
+                    )
+                }
+            }
         }
-        Log.d("TextPostProcessor", "Processed text: $sb")
-    }
 
-    fun getBlocks(): List<Text.TextBlock> {
-        return blocks
+        Log.d("OCR", "ITEMS:")
+        items.forEach {
+            Log.d("OCR", "${it.text} (${it.x}, ${it.y})")
+        }
     }
 }
+
+data class OcrItem(
+    val text: String,
+    val x: Int,
+    val y: Int,
+    val width: Int,
+    val height: Int
+)
