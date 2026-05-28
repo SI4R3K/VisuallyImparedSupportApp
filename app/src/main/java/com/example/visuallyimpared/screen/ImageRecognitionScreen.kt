@@ -152,7 +152,7 @@ fun ImageRecognitionScreen(
                             val bitmap = loadBitmapFromUri(context, uri)
                             if (bitmap != null) {
                                 try {
-                                    val timetables = analyzer.analyze(bitmap)
+                                    val timetables = analyzer.analyze(bitmap, context)
                                     recognizedText = formatTimetables(timetables)
                                 } catch (e: Exception) {
                                     recognizedText = "Error: ${e.message}"

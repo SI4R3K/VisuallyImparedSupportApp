@@ -1,6 +1,8 @@
 package com.example.visuallyimpared.ocr
 
+import android.content.Context
 import android.graphics.Bitmap
+import com.example.visuallyimpared.debug.OcrDebugSaver
 import com.google.mlkit.vision.text.Text
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -12,11 +14,19 @@ class OcrManager {
      * Handles text recognition from a bitmap and returns the ML Kit Text object.
      * Converts the callback-based API to a suspend function for easier orchestration.
      */
-    suspend fun recognizeText(bitmap: Bitmap): Text = suspendCoroutine { continuation ->
+    suspend fun recognizeText(
+        bitmap: Bitmap,
+        context: Context,
+    ): Text = suspendCoroutine { continuation ->
         recognizer.recognize(
             bitmap = bitmap,
             onSuccess = { visionText ->
                 continuation.resume(visionText)
+                OcrDebugSaver.saveRecognizedText(
+                    context = context,
+                    text = visionText,
+                    filename = "recognized_text.txt"
+                )
             },
             onFailure = { exception ->
                 continuation.resumeWithException(exception)

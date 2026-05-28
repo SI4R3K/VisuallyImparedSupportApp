@@ -1,5 +1,6 @@
 package com.example.visuallyimpared.analyzer
 
+import android.content.Context
 import android.graphics.Bitmap
 import com.example.visuallyimpared.data.ocr.Timetable
 import com.example.visuallyimpared.imageprocessing.ImagePreprocessor
@@ -16,12 +17,16 @@ class ScheduleImageAnalyzer(
      * 2. Recognize text (ML Kit)
      * 3. Post-process text into Timetable data
      */
-    suspend fun analyze(bitmap: Bitmap): List<Timetable> {
+    suspend fun analyze(
+        bitmap: Bitmap,
+        context: Context
+    ): List<Timetable> {
+
         // 1. Image Preprocessing (OpenCV)
-        //val processedBitmap = imagePreprocessor.process(bitmap)
+        val processedBitmap = imagePreprocessor.process(bitmap, context)
 
         // 2. Text Recognition (ML Kit)
-        val visionText = ocrManager.recognizeText(bitmap)
+        val visionText = ocrManager.recognizeText(processedBitmap, context)
 
         // 3. Text Post-processing (Parsing into tables)
         return textPostProcessor.process(visionText)

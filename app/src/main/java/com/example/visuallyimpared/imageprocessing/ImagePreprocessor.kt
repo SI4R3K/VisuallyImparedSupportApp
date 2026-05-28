@@ -1,6 +1,8 @@
 package com.example.visuallyimpared.imageprocessing
 
+import android.content.Context
 import android.graphics.Bitmap
+import com.example.visuallyimpared.debug.ImageDebugSaver
 
 class ImagePreprocessor (
     private val grayscaleProcessor: GrayscaleProcessor =
@@ -15,10 +17,34 @@ class ImagePreprocessor (
 //    private val deskewProcessor: DeskewProcessor =
 //        DeskewProcessor()
 ) {
-    fun process(bitmap: Bitmap): Bitmap {
+    fun process(
+        bitmap: Bitmap,
+        context: Context
+    ): Bitmap {
+
+        ImageDebugSaver.saveBitmap(
+            context = context,
+            bitmap,
+            "original.png"
+        )
+
         val gray =
             grayscaleProcessor.process(bitmap)
 
-        return thresholdProcessor.process(gray)
+        ImageDebugSaver.saveBitmap(
+            context = context,
+            gray,
+            "grayscale.png"
+        )
+
+        val threshold = thresholdProcessor.process(gray)
+
+        ImageDebugSaver.saveBitmap(
+            context = context,
+            threshold,
+            "threshold.png"
+        )
+
+        return gray
     }
 }
