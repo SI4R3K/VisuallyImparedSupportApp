@@ -12,22 +12,3 @@ data class Timetable(
     var endY: Int = 0,
     val width: Int = 0,
 )
-
-data class HourDeparture(
-    val hour: Int,
-    val minutes: List<Int>
-)
-
-data class OcrItem(
-    val text: String,
-    val x: Int,
-    val y: Int,
-    val width: Int,
-    val height: Int
-)
-
-enum class DayType {
-    WORKDAYS,
-    SATURDAY,
-    SUNDAY_HOLIDAY
-}

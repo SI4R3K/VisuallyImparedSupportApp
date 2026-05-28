@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.core:core-splashscreen:1.0.0")
     implementation("com.google.mlkit:text-recognition:16.0.1")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(project(":opencv"))
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

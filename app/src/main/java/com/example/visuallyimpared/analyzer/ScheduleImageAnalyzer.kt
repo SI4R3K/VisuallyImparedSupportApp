@@ -1,40 +1,29 @@
 package com.example.visuallyimpared.analyzer
 
-import android.content.Context
-import android.net.Uri
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.io.IOException
+import android.graphics.Bitmap
+import com.example.visuallyimpared.data.ocr.Timetable
+import com.example.visuallyimpared.imageprocessing.ImagePreprocessor
+import com.example.visuallyimpared.ocr.OcrManager
 
 class ScheduleImageAnalyzer(
-    private val context: Context,
-    private val onRecognized: (String) -> Unit
+    private val imagePreprocessor: ImagePreprocessor = ImagePreprocessor(),
+    private val ocrManager: OcrManager = OcrManager(),
+    private val textPostProcessor: TextPostProcessor = TextPostProcessor()
 ) {
-    private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
-    private val processor = TextPostProcessor()
     /**
-     * Call this method from your Screen (e.g., when clicking the Recognize button)
+     * Orchestrates the full analysis flow:
+     * 1. Preprocess image (OpenCV)
+     * 2. Recognize text (ML Kit)
+     * 3. Post-process text into Timetable data
      */
-    fun analyze(uri: Uri) {
-        try {
-            // 1. Prepare the image from the URI
-            val image = InputImage.fromFilePath(context, uri)
+    suspend fun analyze(bitmap: Bitmap): List<Timetable> {
+        // 1. Image Preprocessing (OpenCV)
+        //val processedBitmap = imagePreprocessor.process(bitmap)
 
-            // 2. Start the recognition process
-            recognizer.process(image)
-                .addOnSuccessListener { visionText ->
-                    // 3. Pass the result back via the callback
-                    processor.process(visionText)
-                    onRecognized(visionText.text)
-                }
-                .addOnFailureListener { e ->
-                    e.printStackTrace()
-                    onRecognized("Error: Could not recognize text")
-                }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            onRecognized("Error: Could not load image file")
-        }
+        // 2. Text Recognition (ML Kit)
+        val visionText = ocrManager.recognizeText(bitmap)
+
+        // 3. Text Post-processing (Parsing into tables)
+        return textPostProcessor.process(visionText)
     }
 }

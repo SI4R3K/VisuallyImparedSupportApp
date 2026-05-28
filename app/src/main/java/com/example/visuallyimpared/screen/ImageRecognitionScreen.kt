@@ -1,7 +1,10 @@
 package com.example.visuallyimpared.screen
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
+import android.os.Build
+import android.provider.MediaStore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,13 +33,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
+import com.example.visuallyimpared.data.ocr.DayType
+import com.example.visuallyimpared.data.ocr.Timetable
 import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.utils.rememberPhotoPicker
+import kotlinx.coroutines.launch
 
 @Composable
 fun ImageRecognitionScreen(
@@ -52,13 +58,9 @@ fun ImageRecognitionScreen(
     val pickPhoto = rememberPhotoPicker { uri ->
         selectedImageUri.value = uri
     }
-
-    val analyzer = remember(context) {
-        if (isInspectionMode) null
-        else ScheduleImageAnalyzer(context) { text ->
-            recognizedText = text
-        }
-    }
+    
+    val scope = rememberCoroutineScope()
+    val analyzer = remember { ScheduleImageAnalyzer() }
 
     Column(
         modifier = modifier
@@ -146,10 +148,22 @@ fun ImageRecognitionScreen(
             AppButton(
                 onClick = {
                     selectedImageUri.value?.let { uri ->
-                        analyzer?.analyze(uri)
+                        scope.launch {
+                            val bitmap = loadBitmapFromUri(context, uri)
+                            if (bitmap != null) {
+                                try {
+                                    val timetables = analyzer.analyze(bitmap)
+                                    recognizedText = formatTimetables(timetables)
+                                } catch (e: Exception) {
+                                    recognizedText = "Error: ${e.message}"
+                                }
+                            } else {
+                                recognizedText = "Error: Could not load image"
+                            }
+                        }
                     }
                 },
-                enabled = selectedImageUri.value != null && analyzer != null,
+                enabled = selectedImageUri.value != null,
                 modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Recognize")
@@ -162,4 +176,36 @@ fun ImageRecognitionScreen(
 @Composable
 fun ImageRecognitionScreenPreview() {
     ImageRecognitionScreen()
+}
+
+private fun loadBitmapFromUri(context: android.content.Context, uri: Uri): Bitmap? {
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+        }.copy(Bitmap.Config.ARGB_8888, true)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+private fun formatTimetables(timetables: List<Timetable>): String {
+    if (timetables.isEmpty()) return "No timetable data found."
+    return timetables.joinToString("\n\n") { table ->
+        val dayName = when (table.dayType) {
+            DayType.WORKDAYS -> "Workdays"
+            DayType.SATURDAY -> "Saturday"
+            DayType.SUNDAY_HOLIDAY -> "Sunday & Holidays"
+            else -> "Unknown Day"
+        }
+        "$dayName:\n" + table.departures.joinToString("\n") {
+            "${it.hour}: ${it.minutes.joinToString(", ")}"
+        }
+    }
 }

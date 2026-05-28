@@ -1,0 +1,8 @@
+org.opencv-pngs-0 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\generated\res\pngs\debug
+org.opencv-updated_navigation_xml-1 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\generated\updated_navigation_xml\debug
+org.opencv-mergeDebugResources-2 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\intermediates\incremental\debug\mergeDebugResources\merged.dir
+org.opencv-mergeDebugResources-3 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\intermediates\incremental\debug\mergeDebugResources\stripped.dir
+org.opencv-debug-4 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\intermediates\merged_res\debug\mergeDebugResources
+org.opencv-debug-5 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\build\intermediates\packaged_res\debug\packageDebugResources
+org.opencv-java-6 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\java\res
+org.opencv-debug-7 C:\Users\asus\AndroidStudioProjects\VisuallyImparedSupportApp\opencv\src\debug\res
