@@ -5,11 +5,12 @@ package com.example.visuallyimpared.data.ocr
  */
 data class Timetable(
     val dayType: DayType? = null,
-    val departures: List<HourDeparture> = emptyList(),
-    val startX: Int = 0,
-    val startY: Int = 0,
+    val departures: MutableList<HourDeparture> = mutableListOf(),
+    var startX: Int = 0,
+    var startY: Int = 0,
+    var endX: Int = 0,
+    var endY: Int = 0,
     val width: Int = 0,
-    val height: Int = 0
 )
 
 data class HourDeparture(
