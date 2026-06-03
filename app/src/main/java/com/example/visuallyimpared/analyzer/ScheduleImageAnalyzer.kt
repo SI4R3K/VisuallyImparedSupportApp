@@ -2,7 +2,7 @@ package com.example.visuallyimpared.analyzer
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.example.visuallyimpared.data.ocr.Timetable
+import com.example.visuallyimpared.data.ocr.Stop
 import com.example.visuallyimpared.imageprocessing.ImagePreprocessor
 import com.example.visuallyimpared.ocr.OcrManager
 
@@ -20,7 +20,7 @@ class ScheduleImageAnalyzer(
     suspend fun analyze(
         bitmap: Bitmap,
         context: Context
-    ): List<Timetable> {
+    ): Stop {
 
         // 1. Image Preprocessing (OpenCV)
         val processedBitmap = imagePreprocessor.process(bitmap, context)
@@ -28,7 +28,7 @@ class ScheduleImageAnalyzer(
         // 2. Text Recognition (ML Kit)
         val visionText = ocrManager.recognizeText(processedBitmap, context)
 
-        // 3. Text Post-processing (Parsing into tables)
+        // 3. Text Post-processing (Retrieving stop id and lines)
         return textPostProcessor.process(visionText)
     }
 }

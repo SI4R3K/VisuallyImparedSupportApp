@@ -22,6 +22,7 @@ class OcrManager {
             bitmap = bitmap,
             onSuccess = { visionText ->
                 continuation.resume(visionText)
+                // DEBUG
                 OcrDebugSaver.saveRecognizedText(
                     context = context,
                     text = visionText,

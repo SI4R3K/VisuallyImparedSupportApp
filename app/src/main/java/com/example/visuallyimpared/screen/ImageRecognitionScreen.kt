@@ -37,8 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
-import com.example.visuallyimpared.data.ocr.DayType
-import com.example.visuallyimpared.data.ocr.Timetable
 import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.utils.rememberPhotoPicker
 import kotlinx.coroutines.launch
@@ -152,8 +150,8 @@ fun ImageRecognitionScreen(
                             val bitmap = loadBitmapFromUri(context, uri)
                             if (bitmap != null) {
                                 try {
-                                    val timetables = analyzer.analyze(bitmap, context)
-                                    recognizedText = formatTimetables(timetables)
+                                    val stop = analyzer.analyze(bitmap, context)
+                                    recognizedText = stop.stopId + "\n" + stop.lines.toString()
                                 } catch (e: Exception) {
                                     recognizedText = "Error: ${e.message}"
                                 }
@@ -192,20 +190,5 @@ private fun loadBitmapFromUri(context: android.content.Context, uri: Uri): Bitma
     } catch (e: Exception) {
         e.printStackTrace()
         null
-    }
-}
-
-private fun formatTimetables(timetables: List<Timetable>): String {
-    if (timetables.isEmpty()) return "No timetable data found."
-    return timetables.joinToString("\n\n") { table ->
-        val dayName = when (table.dayType) {
-            DayType.WORKDAYS -> "Workdays"
-            DayType.SATURDAY -> "Saturday"
-            DayType.SUNDAY_HOLIDAY -> "Sunday & Holidays"
-            else -> "Unknown Day"
-        }
-        "$dayName:\n" + table.departures.joinToString("\n") {
-            "${it.hour}: ${it.minutes.joinToString(", ")}"
-        }
     }
 }
