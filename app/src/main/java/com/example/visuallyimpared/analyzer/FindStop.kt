@@ -14,13 +14,11 @@ fun findStop(
     val stopId = findStopId(sortedLines)
     val lines = findLines(sortedLines)
 
-    lines.forEach {
-        Log.d("OCR_LINES", it)
-    }
+    Log.d("OCR_STOP", "Stop ID: $stopId")
 
     return Stop(
         stopId = stopId,
-        lines = lines
+//        routes = lines
     )
 }
 
