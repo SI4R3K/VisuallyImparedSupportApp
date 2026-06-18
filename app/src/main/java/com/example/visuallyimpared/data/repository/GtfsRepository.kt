@@ -23,9 +23,8 @@ class GtfsRepository(
         val stop =
             stopDao.getStopByCode(stopCode)
                 ?: return null
-
-        Log.d("GtfsRepository", "Found stop: $stop")
-
+        Log.d("GtfsRepository", "StopCode: $stopCode")
+        Log.d("GtfsRepository", "Stop: $stop")
         val departures =
             departureDao.getDeparturesForStop(
                 stopId = stop.stopId,
@@ -33,8 +32,6 @@ class GtfsRepository(
                 fromTime = fromTime,
                 toTime = toTime
                 )
-
-        Log.d("GtfsRepository", "Found departures: $departures")
 
         var routes =
             departures
@@ -52,6 +49,7 @@ class GtfsRepository(
                                 .map { it.departureTime }
                     )
                 }
+        Log.d("GtfsRepository", "Stop: $routes")
 
         if (filterLines.isNotEmpty()) {
             routes = routes.filter { route ->
@@ -60,8 +58,7 @@ class GtfsRepository(
                 }
             }
         }
-
-        Log.d("GtfsRepository", "Filter lines: $filterLines")
+        Log.d("GtfsRepository", "Stop: $routes")
 
         return StopInfo(
             stopName = stop.stopName,

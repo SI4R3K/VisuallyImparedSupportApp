@@ -14,8 +14,6 @@ fun findStop(
     val stopId = findStopId(sortedLines)
     val lines = findLines(sortedLines)
 
-    Log.d("OCR_STOP", "Stop ID: $stopId")
-
     return Stop(
         stopId = stopId,
 //        routes = lines
@@ -68,10 +66,6 @@ private fun findLines(
                     .sortedByDescending { it.score }
                     .take(5)
                     .map { it.score}
-
-    topScores.forEach {
-        Log.d("OCR_LINES", it.toString())
-    }
 
     return candidates
         .sortedByDescending { it.score }

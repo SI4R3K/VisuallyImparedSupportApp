@@ -2,6 +2,7 @@ package com.example.visuallyimpared.viewModel
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
@@ -15,7 +16,6 @@ import kotlinx.coroutines.launch
 
 class ImageRecognitionViewModel(
     private val analyzer: ScheduleImageAnalyzer,
-    private val context: Context
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(ImageRecognitionUiState())
@@ -31,7 +31,10 @@ class ImageRecognitionViewModel(
         _uiState.value = ImageRecognitionUiState()
     }
 
-    fun recognizeImage() {
+    fun recognizeImage(
+        context: Context,
+        onRecognized: (String?) -> Unit
+    ) {
         val uri = _uiState.value.selectedImageUri ?: return
 
         viewModelScope.launch {
@@ -51,16 +54,15 @@ class ImageRecognitionViewModel(
                 }
 
                 val stop = analyzer.analyze(bitmap, context)
-
+                Log.d("OCR DEBUG", "recognized stop in ImagerRecognitionViewModel = $stop")
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        stopId = stop.stopId,
-                        errorMessage = if (stop == null)
-                            "Nie znaleziono przystanku: ${stop.stopId}"
-                        else null
+                        stopId = stop.stopId
                     )
                 }
+
+                onRecognized(stop.stopId)
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(

@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +60,7 @@ import java.util.UUID
 @Composable
 fun CameraPreviewScreen(
     viewModel: CameraPreviewModel,
-    onImageCaptured: (Uri) -> Unit,
+    onImageCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val cameraPermissionState = rememberPermissionState(
@@ -105,12 +106,12 @@ private fun PermissionScreen(
 @Composable
 private fun CameraPreviewContent(
     viewModel: CameraPreviewModel,
-    onImageCaptured: (Uri) -> Unit,
+    onImageCaptured: (Uri?) -> Unit,
     modifier: Modifier = Modifier,
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     val context = LocalContext.current
-    val capturedImageUri = remember { mutableStateOf<Uri?>(null) }
+    val uiState by viewModel.uistate.collectAsStateWithLifecycle()
 
     val surfaceRequest by viewModel.surfaceRequest.collectAsStateWithLifecycle()
     val coordinateTransformer = remember { MutableCoordinateTransformer() }
@@ -176,15 +177,7 @@ private fun CameraPreviewContent(
         // Take picture button
         Button(
             onClick = {
-                viewModel.capturePhoto(
-                    context = context,
-                    onImageCaptured = { uri ->
-                        capturedImageUri.value = uri
-                    },
-                    onError = { _ ->
-                        // Handle error
-                    }
-                )
+                viewModel.capturePhoto(context = context)
             },
             shape = CircleShape,
             contentPadding = PaddingValues(0.dp),
@@ -206,11 +199,12 @@ private fun CameraPreviewContent(
         }
 
         // Display the captured image in the center with confirmation options
-        capturedImageUri.value?.let { uri ->
+        uiState.capturedImageUri?.let { uri ->
+
             UploadScreen(
-                capturedImageUri = capturedImageUri,
+                capturedImageUri = uri,
                 onRedo = {
-                    capturedImageUri.value = null
+                    viewModel.clearCapturedImage()
                 },
                 onConfirm = { confirmedUri ->
                     onImageCaptured(confirmedUri)

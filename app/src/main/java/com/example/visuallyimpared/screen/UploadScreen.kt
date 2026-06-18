@@ -39,21 +39,18 @@ import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 
 @Composable
 fun UploadScreen(
-    capturedImageUri: MutableState<Uri?>,
+    capturedImageUri: Uri?,
     onRedo: () -> Unit,
-    onConfirm: (Uri) -> Unit
+    onConfirm: (Uri?) -> Unit
 ) {
-
-    val uri = capturedImageUri.value ?: return
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.90f)) // Use theme background with dimming
+            .background(
+                MaterialTheme.colorScheme.background.copy(alpha = 0.90f)
+            )
             .pointerInput(Unit) {
-                detectTapGestures {
-                    // Prevent accidental dismissal on tap
-                }
+                detectTapGestures { }
             },
         contentAlignment = Alignment.Center
     ) {
@@ -64,7 +61,7 @@ fun UploadScreen(
             verticalArrangement = Arrangement.Center
         ) {
             AsyncImage(
-                model = uri,
+                model = capturedImageUri,
                 contentDescription = "Captured Image",
                 modifier = Modifier
                     .weight(1f, fill = false)
@@ -89,9 +86,7 @@ fun UploadScreen(
                 }
 
                 AppButton(
-                    onClick = {
-                        onConfirm(uri)
-                    },
+                    onClick = { onConfirm(capturedImageUri) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(dimensionResource(R.dimen.padding_medium)),
@@ -108,6 +103,10 @@ fun UploadScreen(
 @Composable
 fun UploadScreenPreview() {
     VisuallyImparedTheme {
-        UploadScreen(remember { mutableStateOf<Uri?>(null) }, onRedo = {}, onConfirm = {})
+        UploadScreen(
+            capturedImageUri = Uri.EMPTY,
+            onRedo = {},
+            onConfirm = {}
+        )
     }
 }

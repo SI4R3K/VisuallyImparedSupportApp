@@ -16,10 +16,5 @@ fun sortLines(processedText: Text): List<Text.Line> {
             )
         )
 
-    // DEBUG
-    sortedLines.forEach { line ->
-        Log.d("OCR_LINE", "${line.text}")
-    }
-
     return sortedLines
 }

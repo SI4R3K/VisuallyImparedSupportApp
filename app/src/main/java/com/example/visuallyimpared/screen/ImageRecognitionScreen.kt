@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -39,17 +40,13 @@ import com.example.visuallyimpared.viewModel.ImageRecognitionViewModel
 
 @Composable
 fun ImageRecognitionScreen(
+    modifier: Modifier = Modifier,
     viewModel: ImageRecognitionViewModel,
     onRestart: () -> Unit = {},
-    onRecognize: (stopId: String?) -> Unit = {},
-    modifier: Modifier = Modifier
+    onRecognize: (stopId: String?) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val scope = rememberCoroutineScope()
-
-    val pickPhoto = rememberPhotoPicker { uri ->
-        viewModel.setImage(uri)
-    }
+    val context = LocalContext.current
 
     Column(
         modifier = modifier
@@ -103,9 +100,10 @@ fun ImageRecognitionScreen(
 
                 AppButton(
                     onClick = {
-                        viewModel.recognizeImage()
-                        onRecognize(uiState.stopId)
-                              },
+                        viewModel.recognizeImage(context) { stopId ->
+                            onRecognize(stopId)
+                        }
+                    },
                     enabled = uiState.selectedImageUri != null && !uiState.isLoading,
                     modifier = Modifier.weight(1f)
                 ) {
@@ -114,45 +112,4 @@ fun ImageRecognitionScreen(
             }
     }
 }
-
-//        Spacer(modifier = Modifier.height(20.dp))
-//
-//        Surface(
-//            modifier = Modifier
-//                .weight(1f)
-//                .padding(start = 16.dp, end = 16.dp)
-//                .fillMaxWidth(),
-//            shape = RoundedCornerShape(16.dp),
-//            color = Color.White.copy(alpha = 0.95f),
-//            tonalElevation = 4.dp
-//        ) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(16.dp),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                // RESULT
-//                when {
-//                    uiState.isLoading -> CircularProgressIndicator(
-//                        color = MaterialTheme.colorScheme.primary,
-//                        modifier = Modifier.semantics { contentDescription = "Przetwarzanie obrazu" }
-//                    )
-//
-//                    uiState.errorMessage != null ->
-//                        Text(
-//                            uiState.errorMessage!!,
-//                            style = MaterialTheme.typography.bodyLarge,
-//                            color = Color.Red,
-//                            fontWeight = FontWeight.Bold
-//                        )
-//
-//                    uiState.stopInfo != null ->
-//                        DepartureList(uiState.stopInfo!!)
-//
-//                    else ->
-//                        Text("Wyniki pojawią się po rozpoznaniu")
-//                }
-//            }
-//        }
 

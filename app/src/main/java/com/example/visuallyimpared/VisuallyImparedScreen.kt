@@ -1,7 +1,9 @@
 package com.example.visuallyimpared
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
@@ -30,24 +32,23 @@ fun VisuallyImparedApp(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
-    val cameraViewModel = remember { CameraPreviewModel() }
     val repository = (context.applicationContext as VisuallyImparedApplication).gtfsRepository
 
     val analyzer = remember {
         ScheduleImageAnalyzer()
     }
 
+    val cameraViewModel = remember { CameraPreviewModel() }
+
     val imageRecognitionViewModel = remember {
         ImageRecognitionViewModel(
-            analyzer,
-            context
+            analyzer
         )
     }
 
     val departureViewModel = remember {
         DepartureViewModel(
-            repository,
-            context
+            repository
         )
     }
 
@@ -88,6 +89,7 @@ fun VisuallyImparedApp(
                     cancelOrderAndNavigateToStart(navController)
                 },
                 onRecognize = { stopId ->
+                    Log.d("OCR DEBUG", "Navigating with stopId = $stopId")
                     navController.navigate(
                         "${VisuallyImparedScreen.DepartureInfo.name}/${stopId}"
                     )
@@ -99,6 +101,7 @@ fun VisuallyImparedApp(
             route = "${VisuallyImparedScreen.DepartureInfo.name}/{stopId}",
         ) { backStackEntry ->
             val stopId = backStackEntry.arguments?.getString("stopId")
+            Log.d("OCR DEBUG", "Route argument stopId = $stopId")
             departureViewModel.setStopCode(stopId ?: "")
             DepartureInfoScreen(
                 viewModel = departureViewModel,

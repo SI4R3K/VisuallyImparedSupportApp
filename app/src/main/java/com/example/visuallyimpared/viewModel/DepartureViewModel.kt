@@ -2,6 +2,7 @@ package com.example.visuallyimpared.viewModel
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,17 +17,16 @@ import java.time.format.DateTimeFormatter
 
 class DepartureViewModel(
     private val repository: GtfsRepository,
-    private val context: Context
 ): ViewModel() {
     private val _uiState = MutableStateFlow(DepartureUiState())
     val uiState = _uiState.asStateFlow()
 
     fun setStopCode(stopCode: String) {
+        Log.d("OCR DEBUG", "setStopCode called with = $stopCode")
         _uiState.update {
             it.copy(stopCode = stopCode)
         }
     }
-
     fun reset() {
         _uiState.value = DepartureUiState()
     }

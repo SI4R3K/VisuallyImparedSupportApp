@@ -19,24 +19,26 @@ import androidx.lifecycle.viewModelScope
 import com.example.visuallyimpared.utils.CameraFileUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 class CameraPreviewModel : ViewModel() {
+    private val executor = Executors.newSingleThreadExecutor()
+    private val _uistate =
+        MutableStateFlow(CameraPreviewUiState())
 
-    // SurfaceRequest state for preview
+    val uistate = _uistate.asStateFlow()
+
     private val _surfaceRequest = MutableStateFlow<SurfaceRequest?>(null)
     val surfaceRequest: StateFlow<SurfaceRequest?> = _surfaceRequest
-
-    private val executor = Executors.newSingleThreadExecutor()
 
     val preview = Preview.Builder().build().also {
         it.setSurfaceProvider { request ->
             _surfaceRequest.update { request }
         }
     }
-
     val imageCapture = ImageCapture.Builder().build()
 
     // Camera reference
@@ -66,24 +68,52 @@ class CameraPreviewModel : ViewModel() {
     ) {
         val camera = this.camera ?: return
 
-        val point = factory.createPoint(offset.x, offset.y)
+        val point = factory.createPoint(
+            offset.x,
+            offset.y
+        )
 
         val action = FocusMeteringAction.Builder(point).build()
+
         camera.cameraControl.startFocusAndMetering(action)
     }
 
-    fun capturePhoto(
-        context: Context,
-        onImageCaptured: (Uri) -> Unit,
-        onError: (ImageCaptureException) -> Unit
-    ) {
+    fun capturePhoto(context: Context)
+    {
+        _uistate.update {
+            it.copy(
+                isCapturing = true,
+                error = null
+            )
+        }
+
         CameraFileUtils.takePicture(
             imageCapture = imageCapture,
             context = context,
             executor = executor,
-            onImageCaptured = onImageCaptured,
-            onError = onError
+            onImageCaptured = { uri ->
+                _uistate.update {
+                    it.copy(
+                        capturedImageUri = uri,
+                        isCapturing = false
+                    )
+                }
+            },
+            onError = { exception ->
+                _uistate.update {
+                    it.copy(
+                        isCapturing = false,
+                        error = exception.message
+                    )
+                }
+            }
         )
+    }
+
+    fun clearCapturedImage() {
+        _uistate.update {
+            it.copy(capturedImageUri = null)
+        }
     }
 
     override fun onCleared() {

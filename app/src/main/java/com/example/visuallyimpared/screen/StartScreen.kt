@@ -34,20 +34,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
+import com.example.visuallyimpared.viewModel.StartScreenViewModel
 
 @Composable
 fun StartScreen(
+    viewModel: StartScreenViewModel = viewModel(),
     onTakePhoto: () -> Unit = {},
-    onConfirmUpload: (Uri) -> Unit = {}
+    onConfirmUpload: (Uri?) -> Unit = {}
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
     val pickPhoto = rememberPhotoPicker { uri ->
-        selectedImageUri.value = uri
+        viewModel.onImageSelected(uri)
     }
 
     Surface(
@@ -105,14 +109,17 @@ fun StartScreen(
             }
 
             // Display UploadScreen as an overlay when an image is selected
-            if (selectedImageUri.value != null) {
+            if (uiState.selectedImageUri != null && !uiState.startState) {
                 UploadScreen(
-                    capturedImageUri = selectedImageUri,
+                    capturedImageUri = remember {
+                        uiState.selectedImageUri
+                    },
                     onRedo = {
-                        selectedImageUri.value = null
+                        viewModel.onRedo()
                         pickPhoto()
                     },
                     onConfirm = { uri ->
+                        viewModel.resetOnNextScreen()
                         onConfirmUpload(uri)
                     }
                 )
@@ -120,7 +127,6 @@ fun StartScreen(
         }
     }
 }
-
 @Composable
 private fun AnimatedText(content: String) {
     val infiniteTransition = rememberInfiniteTransition(label = "infinite")
