@@ -33,6 +33,7 @@ fun VisuallyImparedApp(
 ) {
     val context = LocalContext.current
     val repository = (context.applicationContext as VisuallyImparedApplication).gtfsRepository
+    val tts = (context.applicationContext as VisuallyImparedApplication).ttsService
 
     val analyzer = remember {
         ScheduleImageAnalyzer()
@@ -48,7 +49,8 @@ fun VisuallyImparedApp(
 
     val departureViewModel = remember {
         DepartureViewModel(
-            repository
+            repository,
+            tts
         )
     }
 

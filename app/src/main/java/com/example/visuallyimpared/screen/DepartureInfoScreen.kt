@@ -17,9 +17,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,9 +48,20 @@ fun DepartureInfoScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val scope = rememberCoroutineScope()
+    val isSpeaking by viewModel.isSpeaking.collectAsState()
+    val speechRate by viewModel.speechRate.collectAsState()
 
-    viewModel.generateStopInfo()
+    // Generate stop info once on mount
+    LaunchedEffect(Unit) {
+        viewModel.generateStopInfo()
+    }
+
+    // Auto-announce when data is loaded
+    LaunchedEffect(uiState.stopInfo) {
+        if (uiState.stopInfo != null) {
+            viewModel.speakStopInfo()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -87,12 +101,44 @@ fun DepartureInfoScreen(
                         )
 
                     uiState.stopInfo != null ->
-                        DepartureList(uiState.stopInfo!!)
+                        DepartureList(
+                            stopInfo = uiState.stopInfo!!,
+                            onRouteClick = { route ->
+                                viewModel.speakRouteInfo(
+                                    route.routeName,
+                                    route.headSign,
+                                    route.departureTimes
+                                )
+                            }
+                        )
 
                     else ->
                         Text("Wyniki pojawią się po rozpoznaniu")
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Speech Rate Slider
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+        ) {
+            Text(
+                text = "Tempo mowy: ${"%.1f".format(speechRate)}x",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold
+            )
+            Slider(
+                value = speechRate,
+                onValueChange = { viewModel.updateSpeechRate(it) },
+                valueRange = 0.5f..2.0f,
+                steps = 5, // 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         // BUTTONS
@@ -104,6 +150,7 @@ fun DepartureInfoScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AppButton(onClick = {
+                viewModel.stopSpeaking()
                 viewModel.reset()
                 onRestart()
             },
@@ -114,11 +161,11 @@ fun DepartureInfoScreen(
 
             AppButton(
                 onClick = {
-                    // TODO voice implementation
+                    viewModel.speakStopInfo()
                 },
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Głos")
+                Text(if (isSpeaking) "Stop" else "Głos")
             }
         }
     }
@@ -126,7 +173,8 @@ fun DepartureInfoScreen(
 
 @Composable
 fun DepartureList(
-    stopInfo: StopInfo
+    stopInfo: StopInfo,
+    onRouteClick: (com.example.visuallyimpared.data.dto.RouteInfo) -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier
@@ -158,6 +206,7 @@ fun DepartureList(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable { onRouteClick(route) }
                         .padding(vertical = 8.dp)
                         .semantics(mergeDescendants = true)
                         {
