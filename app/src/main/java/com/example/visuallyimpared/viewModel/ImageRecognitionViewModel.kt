@@ -23,7 +23,7 @@ class ImageRecognitionViewModel(
 
     fun setImage(uri: Uri?) {
         _uiState.update {
-            it.copy(selectedImageUri = uri, errorMessage = null)
+            it.copy(selectedImageUri = uri, errorMessage = null, stopId = null)
         }
     }
 
@@ -63,11 +63,18 @@ class ImageRecognitionViewModel(
                 }
 
                 onRecognized(stop.stopId)
+            } catch (e: NoSuchElementException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Nie znaleziono identyfikatora przystanku. Spróbuj zrobić wyraźniejsze zdjęcie."
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Błąd: ${e.message}"
+                        errorMessage = "Błąd rozpoznawania: ${e.localizedMessage ?: "Nieznany błąd"}"
                     )
                 }
             }

@@ -24,9 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -39,7 +38,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.visuallyimpared.ui.components.AppButton
 import com.example.visuallyimpared.ui.theme.VisuallyImparedTheme
 import com.example.visuallyimpared.utils.rememberPhotoPicker
-import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.example.visuallyimpared.viewModel.StartScreenViewModel
 
 @Composable
@@ -52,6 +50,13 @@ fun StartScreen(
 
     val pickPhoto = rememberPhotoPicker { uri ->
         viewModel.onImageSelected(uri)
+    }
+
+    LaunchedEffect(uiState.selectedImageUri) {
+        uiState.selectedImageUri?.let { uri ->
+            onConfirmUpload(uri)
+            viewModel.onRedo()
+        }
     }
 
     Surface(
@@ -107,23 +112,23 @@ fun StartScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
             }
-
-            // Display UploadScreen as an overlay when an image is selected
-            if (uiState.selectedImageUri != null && !uiState.startState) {
-                UploadScreen(
-                    capturedImageUri = remember {
-                        uiState.selectedImageUri
-                    },
-                    onRedo = {
-                        viewModel.onRedo()
-                        pickPhoto()
-                    },
-                    onConfirm = { uri ->
-                        viewModel.resetOnNextScreen()
-                        onConfirmUpload(uri)
-                    }
-                )
-            }
+//
+//            // Display UploadScreen as an overlay when an image is selected
+//            if (uiState.selectedImageUri != null && !uiState.startState) {
+//                UploadScreen(
+//                    capturedImageUri = remember {
+//                        uiState.selectedImageUri
+//                    },
+//                    onRedo = {
+//                        viewModel.onRedo()
+//                        pickPhoto()
+//                    },
+//                    onConfirm = { uri ->
+//                        viewModel.resetOnNextScreen()
+//                        onConfirmUpload(uri)
+//                    }
+//                )
+//            }
         }
     }
 }

@@ -43,14 +43,19 @@ class DepartureViewModel(
 
     fun setStopCode(stopCode: String) {
         Log.d("OCR DEBUG", "setStopCode called with = $stopCode")
+        if (stopCode.isBlank()) return
+        
         _uiState.update {
             it.copy(stopCode = stopCode)
         }
+        generateStopInfo()
     }
+
     fun reset() {
         _uiState.value = DepartureUiState()
     }
-    fun generateStopInfo() {
+
+    private fun generateStopInfo() {
         val stopCode = _uiState.value.stopCode ?: return
 
         val currentDate = LocalDate.now()

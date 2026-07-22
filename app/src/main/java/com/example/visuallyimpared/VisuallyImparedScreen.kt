@@ -16,6 +16,7 @@ import com.example.visuallyimpared.screen.CameraPreviewScreen
 import com.example.visuallyimpared.screen.DepartureInfoScreen
 import com.example.visuallyimpared.screen.ImageRecognitionScreen
 import com.example.visuallyimpared.screen.StartScreen
+import com.example.visuallyimpared.screen.UploadScreen
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.example.visuallyimpared.viewModel.DepartureViewModel
 import com.example.visuallyimpared.viewModel.ImageRecognitionViewModel
@@ -23,7 +24,7 @@ import com.example.visuallyimpared.viewModel.ImageRecognitionViewModel
 enum class VisuallyImparedScreen {
     Start,
     CameraPreview,
-    ImageRecognition,
+    Upload,
     DepartureInfo
 }
 
@@ -41,7 +42,7 @@ fun VisuallyImparedApp(
 
     val cameraViewModel = remember { CameraPreviewModel() }
 
-    val imageRecognitionViewModel = remember {
+    val uploadScreenViewModel = remember {
         ImageRecognitionViewModel(
             analyzer
         )
@@ -65,7 +66,7 @@ fun VisuallyImparedApp(
                     navController.navigate(VisuallyImparedScreen.CameraPreview.name)
                 },
                 onConfirmUpload = { uri ->
-                    navController.navigate("${VisuallyImparedScreen.ImageRecognition.name}/${Uri.encode(uri.toString())}")
+                    navController.navigate("${VisuallyImparedScreen.Upload.name}/${Uri.encode(uri.toString())}")
                 }
             )
         }
@@ -74,23 +75,27 @@ fun VisuallyImparedApp(
             CameraPreviewScreen(
                 viewModel = cameraViewModel,
                 onImageCaptured = { uri ->
-                    navController.navigate("${VisuallyImparedScreen.ImageRecognition.name}/${Uri.encode(uri.toString())}")
+                    navController.navigate("${VisuallyImparedScreen.Upload.name}/${Uri.encode(uri.toString())}")
                 }
             )
         }
 
         composable(
-            route = "${VisuallyImparedScreen.ImageRecognition.name}/{imageUri}",
+            route = "${VisuallyImparedScreen.Upload.name}/{imageUri}",
         ) { backStackEntry ->
             val imageUriStr = backStackEntry.arguments?.getString("imageUri")
             val imageUri = imageUriStr?.toUri()
-            imageRecognitionViewModel.setImage(imageUri)
-            ImageRecognitionScreen(
-                viewModel = imageRecognitionViewModel,
-                onRestart = {
+            
+            LaunchedEffect(imageUri) {
+                uploadScreenViewModel.setImage(imageUri)
+            }
+            
+            UploadScreen(
+                viewModel = uploadScreenViewModel,
+                onRedo = {
                     cancelOrderAndNavigateToStart(navController)
                 },
-                onRecognize = { stopId ->
+                onConfirm = { stopId ->
                     Log.d("OCR DEBUG", "Navigating with stopId = $stopId")
                     navController.navigate(
                         "${VisuallyImparedScreen.DepartureInfo.name}/${stopId}"
@@ -104,7 +109,11 @@ fun VisuallyImparedApp(
         ) { backStackEntry ->
             val stopId = backStackEntry.arguments?.getString("stopId")
             Log.d("OCR DEBUG", "Route argument stopId = $stopId")
-            departureViewModel.setStopCode(stopId ?: "")
+            
+            LaunchedEffect(stopId) {
+                departureViewModel.setStopCode(stopId ?: "")
+            }
+
             DepartureInfoScreen(
                 viewModel = departureViewModel,
                 onRestart = {

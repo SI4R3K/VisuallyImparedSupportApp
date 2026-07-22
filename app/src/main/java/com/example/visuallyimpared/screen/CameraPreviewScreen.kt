@@ -27,7 +27,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -133,6 +132,14 @@ private fun CameraPreviewContent(
         }
     }
 
+    // Navigate once image is captured
+    LaunchedEffect(uiState.capturedImageUri) {
+        uiState.capturedImageUri?.let { uri ->
+            onImageCaptured(uri)
+            viewModel.clearCapturedImage()
+        }
+    }
+
     // Displaying the camera view from device
     Box(modifier = modifier.fillMaxSize()) {
         surfaceRequest?.let { request ->
@@ -195,20 +202,6 @@ private fun CameraPreviewContent(
                     .size(60.dp)
                     .clip(shape = CircleShape)
                     .background(Color.White)
-            )
-        }
-
-        // Display the captured image in the center with confirmation options
-        uiState.capturedImageUri?.let { uri ->
-
-            UploadScreen(
-                capturedImageUri = uri,
-                onRedo = {
-                    viewModel.clearCapturedImage()
-                },
-                onConfirm = { confirmedUri ->
-                    onImageCaptured(confirmedUri)
-                }
             )
         }
     }

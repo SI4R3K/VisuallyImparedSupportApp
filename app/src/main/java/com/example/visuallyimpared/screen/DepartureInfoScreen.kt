@@ -51,11 +51,6 @@ fun DepartureInfoScreen(
     val isSpeaking by viewModel.isSpeaking.collectAsState()
     val speechRate by viewModel.speechRate.collectAsState()
 
-    // Generate stop info once on mount
-    LaunchedEffect(Unit) {
-        viewModel.generateStopInfo()
-    }
-
     // Auto-announce when data is loaded
     LaunchedEffect(uiState.stopInfo) {
         if (uiState.stopInfo != null) {
