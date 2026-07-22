@@ -12,10 +12,10 @@ class ImagePreprocessor (
         bitmap: Bitmap,
         context: Context
     ): Bitmap {
-        ImageDebugSaver.saveBitmap(context, bitmap, "1_original.png")
+//        ImageDebugSaver.saveBitmap(context, bitmap, "1_original.png")
 
         val gray = grayscaleProcessor.process(bitmap)
-        ImageDebugSaver.saveBitmap(context, gray, "2_grayscale.png")
+//        ImageDebugSaver.saveBitmap(context, gray, "2_grayscale.png")
 
         return gray
     }

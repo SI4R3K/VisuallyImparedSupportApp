@@ -10,6 +10,13 @@ class MlKitTextRecognizer {
     private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
 
     /**
+     * Pre-warms the ML Kit recognizer by triggering its lazy initialization.
+     */
+    fun warmUp() {
+        recognizer
+    }
+
+    /**
      * Recognizes text from a Bitmap and returns the ML Kit Text object.
      */
     fun recognize(

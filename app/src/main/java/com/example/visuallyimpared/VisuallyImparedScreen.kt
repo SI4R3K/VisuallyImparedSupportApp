@@ -14,12 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
 import com.example.visuallyimpared.screen.CameraPreviewScreen
 import com.example.visuallyimpared.screen.DepartureInfoScreen
-import com.example.visuallyimpared.screen.ImageRecognitionScreen
 import com.example.visuallyimpared.screen.StartScreen
 import com.example.visuallyimpared.screen.UploadScreen
 import com.example.visuallyimpared.viewModel.CameraPreviewModel
 import com.example.visuallyimpared.viewModel.DepartureViewModel
-import com.example.visuallyimpared.viewModel.ImageRecognitionViewModel
+import com.example.visuallyimpared.viewModel.UploadScreenViewModel
 
 enum class VisuallyImparedScreen {
     Start,
@@ -43,7 +42,7 @@ fun VisuallyImparedApp(
     val cameraViewModel = remember { CameraPreviewModel() }
 
     val uploadScreenViewModel = remember {
-        ImageRecognitionViewModel(
+        UploadScreenViewModel(
             analyzer
         )
     }

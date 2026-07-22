@@ -12,6 +12,13 @@ class ScheduleImageAnalyzer(
     private val textPostProcessor: TextPostProcessor = TextPostProcessor()
 ) {
     /**
+     * Pre-warms the analysis engine.
+     */
+    fun warmUp() {
+        ocrManager.warmUp()
+    }
+
+    /**
      * Orchestrates the full analysis flow:
      * 1. Preprocess image (OpenCV)
      * 2. Recognize text (ML Kit)

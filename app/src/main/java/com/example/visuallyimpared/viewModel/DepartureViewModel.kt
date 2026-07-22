@@ -1,9 +1,5 @@
 package com.example.visuallyimpared.viewModel
 
-import android.content.Context
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.visuallyimpared.data.repository.GtfsRepository
@@ -42,7 +38,6 @@ class DepartureViewModel(
     }
 
     fun setStopCode(stopCode: String) {
-        Log.d("OCR DEBUG", "setStopCode called with = $stopCode")
         if (stopCode.isBlank()) return
         
         _uiState.update {
@@ -77,7 +72,6 @@ class DepartureViewModel(
                     fromTime = fromTime,
                     toTime = toTime
                 )
-
                 if (stopInfo == null) {
                     _uiState.update {
                         it.copy(

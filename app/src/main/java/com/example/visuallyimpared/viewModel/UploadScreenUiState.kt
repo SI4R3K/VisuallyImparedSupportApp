@@ -1,9 +1,8 @@
 package com.example.visuallyimpared.viewModel
 
 import android.net.Uri
-import com.example.visuallyimpared.data.dto.StopInfo
 
-data class ImageRecognitionUiState(
+data class UploadScreenUiState(
     val selectedImageUri: Uri? = null,
     val stopId: String? = null,
     val isLoading: Boolean = false,

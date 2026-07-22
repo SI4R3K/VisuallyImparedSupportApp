@@ -2,23 +2,20 @@ package com.example.visuallyimpared.viewModel
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.visuallyimpared.analyzer.ScheduleImageAnalyzer
-import com.example.visuallyimpared.data.ocr.Stop
-import com.example.visuallyimpared.data.repository.GtfsRepository
 import com.example.visuallyimpared.utils.loadBitmapFromUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ImageRecognitionViewModel(
+class UploadScreenViewModel(
     private val analyzer: ScheduleImageAnalyzer,
 ): ViewModel() {
 
-    private val _uiState = MutableStateFlow(ImageRecognitionUiState())
+    private val _uiState = MutableStateFlow(UploadScreenUiState())
     val uiState = _uiState.asStateFlow()
 
     fun setImage(uri: Uri?) {
@@ -28,7 +25,7 @@ class ImageRecognitionViewModel(
     }
 
     fun reset() {
-        _uiState.value = ImageRecognitionUiState()
+        _uiState.value = UploadScreenUiState()
     }
 
     fun recognizeImage(
@@ -54,7 +51,7 @@ class ImageRecognitionViewModel(
                 }
 
                 val stop = analyzer.analyze(bitmap, context)
-                Log.d("OCR DEBUG", "recognized stop in ImagerRecognitionViewModel = $stop")
+
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -67,7 +64,7 @@ class ImageRecognitionViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Nie znaleziono identyfikatora przystanku. Spróbuj zrobić wyraźniejsze zdjęcie."
+                        errorMessage = "Nie znaleziono identyfikatora przystanku. Spróbuj wgrać wyraźniejsze zdjęcie."
                     )
                 }
             } catch (e: Exception) {
